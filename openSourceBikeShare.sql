@@ -2,7 +2,6 @@
 -- version 4.1.14.8
 -- http://www.phpmyadmin.net
 --
--- Host: db744024984.db.1and1.com
 -- Generation Time: Oct 01, 2018 at 02:38 PM
 -- Server version: 5.5.60-0+deb7u1-log
 -- PHP Version: 5.4.45-0+deb7u14
@@ -95,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `limits` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
   `userLimit` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=204 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 INSERT INTO `limits`(`userId`, `userLimit`) VALUES (1,10);
 --
@@ -185,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `stands` (
   `latitude` double(20,17) DEFAULT NULL,
   PRIMARY KEY (`standId`),
   UNIQUE KEY `standName` (`standName`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=0 ;
 
 --
 -- Table structure for table `touristes`
@@ -198,7 +197,7 @@ CREATE TABLE IF NOT EXISTS `touristes` (
   `nbBikes` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`touristeId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=0 ;
 
 --
 -- Table structure for table `users`
@@ -215,7 +214,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `note` text NOT NULL,
   `recommendations` text NOT NULL,
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=204 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
 -- Dumping data for table `users`
