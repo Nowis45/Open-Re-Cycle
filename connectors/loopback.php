@@ -62,7 +62,7 @@ class SMSConnector
 
 		$options = [];
 
-		$smsGateway = new SmsGateway("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhZG1pbiIsImlhdCI6MTUyOTkxOTk3MSwiZXhwIjo0MTAyNDQ0ODAwLCJ1aWQiOjU1NjQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXX0.yClFAbYJgdED94HUQgEQB1WgiczrHdObf6_O54sTToA");
+		$smsGateway = new SmsGateway("yoursmsGatewaytoken");
 		$result = $smsGateway->sendMessageToNumber($phone_number, $message, $deviceID, $options);
       }
    // if Respond is not called, this forces the log to save / flush
