@@ -182,6 +182,12 @@ switch($action)
    case "usagestats":
       getusagestats();
       break;
+   case"monthstats":
+      getmonthstats();
+      break;
+   case "standstats":
+      getstandstats();
+      break;
    case "removeuser":
       removeuser($_GET["userid"]);
       break;

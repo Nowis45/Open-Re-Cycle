@@ -85,11 +85,6 @@ if (isloggedin()):
     <li role="presentation"><a href="#stands" aria-controls="stands" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> <?php echo _('Stations'); ?></a></li>
     <li role="presentation"><a href="#users" aria-controls="users" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <?php echo _('Utilisateurs'); ?></a></li>
     <li role="presentation"><a href="#touristes" aria-controls="touristes" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <?php echo _('Touristes'); ?></a></li>
-<?php
-if (iscreditenabled()):
-?>
-    <li role="presentation"><a href="#credit" aria-controls="credit" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span> <?php echo _('Credit system'); ?></a></li>
-<?php endif; ?>
     <li role="presentation"><a href="#reports" aria-controls="reports" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> <?php echo _('Statistiques'); ?></a></li>
   </ul>
 
@@ -97,7 +92,7 @@ if (iscreditenabled()):
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="fleet">
       <div class="row">
-      <div class="col-lg-12">
+        <div class="col-lg-12">
                <input placeholder="Entrez un numéro de vélo et choisissez une action" type="text" name="adminparam" id="adminparam" class="form-control">
 			  <a href="admin.php"><button class="btn btn-default" type="button" title="<?php echo _('Affiche la liste des vélos'); ?>"><span class="glyphicon glyphicon-refresh"></span><?php echo _(' Etat des vélos'); ?></button></a>
                <button style="float: right;"  type="button" id="removenote" class="btn btn-default" title="<?php echo _('Supprime le signalement du vélo correspondant'); ?>"><span class="glyphicon glyphicon-remove"></span> <?php echo _('Supprimer le signalement'); ?></button>
@@ -150,6 +145,28 @@ if (iscreditenabled()):
          <button type="button" id="saveuser" class="btn btn-primary"><?php echo _('Sauvegarder'); ?></button>
       </form>
       <div id="userconsole"></div>
+      <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Confirm Delete</h4>
+                </div>
+            
+                <div class="modal-body">
+                    <p>You are about to delete one track, this procedure is irreversible.</p>
+                    <p>Do you want to proceed?</p>
+                    <p class="debug-url"></p>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger btn-ok">Delete</a>
+                </div>
+            </div>
+        </div>
+      </div>
     </div>
 
     <div role="tabpanel" class="tab-pane" id="touristes">
@@ -164,7 +181,10 @@ if (iscreditenabled()):
     <div role="tabpanel" class="tab-pane" id="reports">
       <div class="row">
          <div class="col-lg-12">
+         <button type="button" id="userstats" class="btn btn-default" title="<?php echo _('Montre les statistiques depuis la mise en place du service'); ?>"><span class="glyphicon glyphicon-road"></span> <?php echo _('Statistiques totale'); ?></button>
+         <button type="button" id="monthstats" class="btn btn-default" title="<?php echo _('Montre les statistiques sur les 30 derniers jours'); ?>"><span class="glyphicon glyphicon-road"></span> <?php echo _('Statistiques sur les 30 derniers jours'); ?></button>
          <button type="button" id="usagestats" class="btn btn-default" title="<?php echo _('Montre les statistiques du jour'); ?>"><span class="glyphicon glyphicon-road"></span> <?php echo _('Statistiques journalières'); ?></button>
+         <button type="button" id="standstats" class="btn btn-default" title="<?php echo _('Montre les statistiques par stations depuis la mise en place du service'); ?>"><span class="glyphicon glyphicon-road"></span> <?php echo _('Statistiques par stations'); ?></button>
          <div id="reportsconsole"></div>
          </div>
       </div>

@@ -12,6 +12,8 @@ $(document).ready(function(){
    $("#touristeslist").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-touristeslist'); touristeslist(); });
    $("#userstats").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-userstats'); userstats(); });
    $("#usagestats").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-usagestats'); usagestats(); });
+   $("#monthstats").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-monthstats'); monthstats(); });
+   $("#standstats").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-standstats'); standstats(); });
    $("#listcoupons").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-couponlist'); couponlist(); });
    $("#generatecoupons1").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-generatecoupons'); generatecoupons(1); });
    $("#generatecoupons2").click(function() { if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-generatecoupons'); generatecoupons(5); });
@@ -100,7 +102,7 @@ function userlist()
    url: "command.php?action=userlist"
    }).done(function(jsonresponse) {
       jsonobject=$.parseJSON(jsonresponse);
-      if (jsonobject.length>0) code='<table class="table table-striped" id="usertable"><thead><tr><th>'+_nb+'</th><th>'+_user+'</th><th>'+_penality+'</th><th>'+_limit+'</th><th>Piece d\'identité</th><th>Modifier les infos</th><th>Supprimer un utilisateur</th>';
+      if (jsonobject.length>0) code='<table class="table table-striped" id="usertable"><thead><tr><th>'+'n°'+'</th><th>'+_user+'</th><th>'+_penality+'</th><th>'+_limit+'</th><th>Piece d\'identité</th><th>Modifier les infos</th><th>Supprimer un utilisateur</th>';
       if (creditenabled==1) code=code+'<th>'+_credit+'</th>';
       code=code+'</tr></thead>';
       for (var i=0, len=jsonobject.length; i < len; i++)
@@ -161,19 +163,14 @@ function userstats()
    url: "command.php?action=userstats"
    }).done(function(jsonresponse) {
       jsonobject=$.parseJSON(jsonresponse);
-      if (jsonobject.length>0) code='<table class="table table-striped" id="userstatstable"><thead><tr><th>User</th><th>Actions</th><th>Rentals</th><th>Returns</th></tr></thead>';
+      if (jsonobject.length>0) code='<h3>Statistiques depuis le début du service</h3><table class="table table-striped" id="userstatstable"><thead><tr><th>Inscriptions</th><th>Locations</th><th>Dépot</th><th>Signalements vélos</th><th>Dépot par administrateur</th></tr></thead>';
       for (var i=0, len=jsonobject.length; i < len; i++)
          {
-         code=code+'<tr><td><a href="#" class="edituser" data-userid="'+jsonobject[i]["userid"]+'">'+jsonobject[i]["username"]+'</a></td><td>'+jsonobject[i]["count"]+'</td><td>'+jsonobject[i]["rentals"]+'</td><td>'+jsonobject[i]["returns"]+'</td></tr>';
+         code=code+'<tr><td>'+jsonobject[i]["totaluser"]+'</td><td>'+jsonobject[i]["totalloc"]+'</td><td>'+jsonobject[i]["totaldepot"]+'</td><td>'+jsonobject[i]["totalnote"]+'</td><td>'+jsonobject[i]["totalforce"]+'</td></tr>';
          }
       if (jsonobject.length>0) code=code+'</table>';
       $('#reportsconsole').html(code);
       createeditlinks();
-      $('#userstatstable').dataTable({
-        "paging":   false,
-        "ordering": false,
-        "info":     false
-      });
    });
 }
 
@@ -184,10 +181,42 @@ function usagestats()
    url: "command.php?action=usagestats"
    }).done(function(jsonresponse) {
       jsonobject=$.parseJSON(jsonresponse);
-      if (jsonobject.length>0) code='<table class="table table-striped" id="usagestatstable"><thead><tr><th>Jour</th><th>Actions</th><th>Nombre</th></tr></thead>';
+      if (jsonobject.length>0) code='<h3>Statistiques journalière</h3><table class="table table-striped" id="usagestatstable"><thead><tr><th>Jour</th><th>Actions</th><th>Nombre</th></tr></thead>';
       for (var i=0, len=jsonobject.length; i < len; i++)
          {
          code=code+'<tr><td>'+jsonobject[i]["day"]+'</td><td>'+jsonobject[i]["action"]+'</td><td>'+jsonobject[i]["count"]+'</td></tr>';
+         }
+      if (jsonobject.length>0) code=code+'</table>';
+      $('#reportsconsole').html(code);
+   });
+}
+
+function monthstats(){
+   var code="";
+   $.ajax({
+   url: "command.php?action=monthstats"
+   }).done(function(jsonresponse) {
+      jsonobject=$.parseJSON(jsonresponse);
+      if (jsonobject.length>0) code='<h3>Statistiques sur les 30 derniers jours</h3><table class="table table-striped" id="usagestatstable"><thead><tr><th>Inscriptions</th><th>Locations</th><th>Dépot</th><th>Dépot par des administrateurs</th><th>Signalements</th></tr></thead>';
+      for (var i=0, len=jsonobject.length; i < len; i++)
+         {
+         code=code+'<tr><td>'+jsonobject[i]["inscription"]+'</td><td>'+jsonobject[i]["mloc"]+'</td><td>'+jsonobject[i]["mdepot"]+'</td><td>'+jsonobject[i]["mforce"]+'</td><td>'+jsonobject[i]["msign"]+'</td></tr>';
+         }
+      if (jsonobject.length>0) code=code+'</table>';
+      $('#reportsconsole').html(code);
+   });
+}
+
+function standstats(){
+   var code="";
+   $.ajax({
+   url: "command.php?action=standstats"
+   }).done(function(jsonresponse) {
+      jsonobject=$.parseJSON(jsonresponse);
+      if (jsonobject.length>0) code='<h3>Statistiques par stations</h3><table class="table table-striped" id="usagestatstable"><thead><tr><th>Stations</th><th>Locations</th><th>Dépot</th><th>Dépot par des administrateurs</th></tr></thead>';
+      for (var i=0, len=jsonobject.length; i < len; i++)
+         {
+         code=code+'<tr><td>'+jsonobject[i]["placename"]+'</td><td>'+jsonobject[i]["locbystand"]+'</td><td>'+jsonobject[i]["depotbystand"]+'</td><td>'+jsonobject[i]["forcedepbystand"]+'</td></tr>';
          }
       if (jsonobject.length>0) code=code+'</table>';
       $('#reportsconsole').html(code);
@@ -212,17 +241,18 @@ function removesignalement(standId)
 }
 
 function removeuser(userid){
-   $.ajax({
-   url: "command.php?action=removeuser&userid="+userid
-   }).done(function(jsonresponse) {
-      if (jsonobject.error==1){
+   var txt;
+   var r = confirm("Vous êtes sur le point de supprimer un utilisateur ! Pour confirmer appuyez sur OK, si c'était une erreur appuyer sur annuler");
+   if (r == true) {
+      $.ajax({
+      url: "command.php?action=removeuser&userid="+userid
+      }).done(function(jsonresponse) {
          jsonobject=$.parseJSON(jsonresponse);
          handleresponse("userconsole",jsonobject);
-      } else {
-         jsonobject=$.parseJSON(jsonresponse);
-         handleresponse("userconsole",jsonobject);
-      }
-   });
+      });
+   } else {
+     txt = "You pressed Cancel!";
+   }
 }
 
 function edituser(userid)

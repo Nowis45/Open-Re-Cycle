@@ -483,7 +483,7 @@ function register($number,$fullname,$email,$existing,$photo)
 {
    global $db, $dbpassword, $countrycode, $systemURL;
 
-   global $db, $dbpassword, $countrycode, $systemURL;
+    global $db, $dbpassword, $countrycode, $systemURL;
 
    $number=$db->conn->real_escape_string(trim($number));
    $fullname=$db->conn->real_escape_string(trim($fullname));
@@ -495,13 +495,13 @@ function register($number,$fullname,$email,$existing,$photo)
 	$filename = $_FILES["profile_pic"]["name"];
 	$file_ext = substr($filename, strripos($filename, '.')); // avoir l'extension du fichier
 	$newfilename = $target_dir . $fullname . $file_ext;
-   
-   $result=$db->query("INSERT INTO users (userName, password, mail, number, privileges, PI, note, recommendations) VALUES ('$fullname', 'pass', '$email', '$number', '0', '$newfilename', '', '')");
+   $res=$db->query("SELECT userId FROM users WHERE number='$number' OR userName='$fullname'");
+   $result=$db->query("INSERT INTO users (userName, password, mail, number, privileges, PI, note, recommendations, time) VALUES ('$fullname', 'pass', '$email', '$number', '0', '$newfilename', '', '',NOW())");
    $userId=$db->conn->insert_id;
    $result2=$db->query("INSERT INTO limits (userId, userLimit) VALUES ('$userId', '1')");
    sendSMS($number, 'Bonjour et bienvenue sur le service Cyclovis ! Votre inscription a bien été validée.');
    sendSMS($number, 'Vous pouvez désormais emprunter un vélo en envoyant RETIRER suivi du numéro de vélo par SMS. Pour plus d\'informations sur les commandes envoyez AIDE.');
-   header("Location: ".$systemURL."admin.php");
+   header("Location: ".$systemURL."register.php?error=0");
    response(_('L\'utilisateur a ete correctement inscrit.'));
   
 }
@@ -651,16 +651,53 @@ function getuserlist()
 function getuserstats()
 {
    global $db;
-   $result=$db->query("SELECT users.userId,username,count(action) AS count FROM users LEFT JOIN history ON users.userId=history.userId WHERE history.userId IS NOT NULL GROUP BY username ORDER BY count DESC");
-   while($row = $result->fetch_assoc())
-      {
-      $result2=$db->query("SELECT count(action) AS rentals FROM history WHERE action='RETIRER' AND userId=".$row["userId"]);
-      $row2=$result2->fetch_assoc();
-      $result2=$db->query("SELECT count(action) AS returns FROM history WHERE action='DEPOT' AND userId=".$row["userId"]);
-      $row3=$result2->fetch_assoc();
-      $jsoncontent[]=array("userid"=>$row["userId"],"username"=>$row["username"],"count"=>$row["count"],"rentals"=>$row2["rentals"],"returns"=>$row3["returns"]);
-      }
+   $result2=$db->query("SELECT count(userId) as totaluser FROM users");
+   $res=$db->query("SELECT count(userId) as totalnote FROM notes");
+   $res2=$db->query("SELECT count(userId) as totalsign FROM signalement");
+   $result3=$db->query("SELECT count(userId) as totalloc FROM history WHERE action='RETIRER'");
+   $result4=$db->query("SELECT count(userId) as totaldepot FROM history WHERE action='DEPOT'");
+   $result5=$db->query("SELECT count(userId) as totalforce FROM history WHERE action='FORCEDEPOSER'");
+   $data2= $result3->fetch_assoc();
+   $data= $result2->fetch_assoc();
+   $datanote = $res->fetch_assoc();
+   $datasign = $res2->fetch_assoc();
+   $datadepot = $result4->fetch_assoc();
+   $dataforce = $result5->fetch_assoc();
+   $jsoncontent[]=array("totaluser"=>$data['totaluser'], "totalloc"=>$data2['totalloc'],"totalnote"=>$datanote['totalnote'], "totalsign"=>$datasign['totalsign'], "totaldepot"=>$datadepot['totaldepot'], "totalforce"=>$dataforce['totalforce']);
    echo json_encode($jsoncontent);// TODO change to response function
+}
+
+function getmonthstats()
+{
+   global $db;
+   $result=$db->query("SELECT count(userId) as mloc FROM history WHERE action='RETIRER' AND time > DATE_ADD(NOW(), INTERVAL -1 MONTH)");
+   $data= $result->fetch_assoc();
+   $result2=$db->query("SELECT count(userId) as mdepot FROM history WHERE action='DEPOT' AND time > DATE_ADD(NOW(), INTERVAL -1 MONTH)");
+   $data2= $result2->fetch_assoc();
+   $result3=$db->query("SELECT count(userId) as mforce FROM history WHERE action='FORCEDEPOSER' AND time > DATE_ADD(NOW(), INTERVAL -1 MONTH)");
+   $data3= $result3->fetch_assoc();
+   $result4=$db->query("SELECT count(userId) as msign FROM notes WHERE time > DATE_ADD(NOW(), INTERVAL -1 MONTH)");
+   $data4= $result4->fetch_assoc();
+   $result5=$db->query("SELECT count(userId) as inscription FROM users WHERE time > DATE_ADD(NOW(), INTERVAL -1 MONTH)");
+   $data5= $result5->fetch_assoc();
+   $jsoncontent[]=array("mloc"=>$data['mloc'], "mdepot"=>$data2['mdepot'], "mforce"=>$data3['mforce'], "msign"=>$data4['msign'], "inscription"=>$data5['inscription']);
+   echo json_encode($jsoncontent);
+}
+
+function getstandstats(){
+   global $db;
+   $res=$db->query("SELECT placeName,standId FROM stands");
+   while($row = $res->fetch_assoc()){
+      $stand = $row['standId'];
+      $result=$db->query("SELECT count(parameter) as depotbystand FROM history WHERE action='DEPOT' AND parameter=$stand");
+      $data= $result->fetch_assoc();
+      $result2=$db->query("SELECT count(parameter) as locbystand FROM history WHERE action='RETIRER' AND standId=$stand");
+      $data2= $result2->fetch_assoc();
+      $res2=$db->query("SELECT count(parameter) as forcedepotbystand FROM history WHERE action='FORCEDEPOSER' AND parameter=$stand");
+      $row2= $res2->fetch_assoc();
+      $jsoncontent[]=array("placename"=>$row['placeName'], "forcedepbystand"=>$row2['forcedepotbystand'], "depotbystand"=>$data['depotbystand'], "locbystand"=>$data2['locbystand']);
+   }
+   echo json_encode($jsoncontent);
 }
 
 function getusagestats()
@@ -686,17 +723,12 @@ function edituser($userid)
 function removeuser($userid)
 {
    global $db;
-   $result=$db->query("SELECT users.userId,userName FROM users LEFT JOIN bikes ON users.userId=bikes.currentUser WHERE users.userId='$userid' AND bikes.currentUser=".$userid);
-   if ($result->num_rows>=1){
-      $row=$result->fetch_assoc();
-      response(_('Désolé, l\'utilisateur')." ".$row['userName']." "._('possède un vélo en cours d\'utilisation').".",1);
-   } else {
-      $result=$db->query("DELETE FROM limits WHERE userId='$userid'");
-      $result=$db->query("DELETE FROM sessions WHERE userId='$userid'");
-      $result=$db->query("DELETE FROM users WHERE userId='$userid'");
-      $db->conn->commit();
-      response(_('L\'utilisateur')." ".$row['userName']." "._('a été supprimé').".");
-   }
+   $res=$db->query("SELECT userName FROM users WHERE userId='$userid'");
+   $row=$res->fetch_assoc();
+   $result=$db->query("DELETE FROM limits WHERE userId='$userid'");
+   $result=$db->query("DELETE FROM users WHERE userId='$userid'");
+   $db->conn->commit();
+   response(_('L\'utilisateur')." ".$row['userName']." "._('a correctement été supprimé !'));
 }
 
 

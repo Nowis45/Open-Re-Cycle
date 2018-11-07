@@ -24,7 +24,6 @@ _existing_user = "<?php echo _('Changer de mot de passe'); ?>";
 _step2 = "<?php echo _('Etape 2 - Changer de mot de passe'); ?>";
 _set_password = "<?php echo _('Définir mot de passe'); ?>";
 
-_nb = "<?php echo _('Numéro'); ?>";
 _user = "<?php echo _('Utilisateur'); ?>";
 _privileges = "<?php echo _('Privilèges'); ?>";
 _limit = "<?php echo _('Limite'); ?>";

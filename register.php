@@ -56,6 +56,11 @@ checksession();
         <div id="console"></div>
       </div>
 
+      <?php
+      if (isset($_GET["error"]) AND $_GET["error"]==0) echo '<div class="alert alert-success" role="alert"><h3>',_('L\'utilisateur a été correctement inscrit !'),'</h3></div>';
+      else if (isset($_GET["error"]) AND $_GET["error"]==2) echo '<div class="alert alert-danger" role="alert"><h3>',_('Session terminée ! Reconnectez vous.'),'</h3></div>';
+      ?>
+
       <form  method="POST" action="command.php?action=register" enctype="multipart/form-data">
         <h2 id="step2title"><?php echo _('Création d\'un compte utilisateur'); ?></h2>
          <div class="form-group">

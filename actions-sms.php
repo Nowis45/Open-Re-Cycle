@@ -207,7 +207,7 @@ function rent($number,$bike,$force=FALSE)
 
 	   if ($force==FALSE)
 			  {
-				$result=$db->query("INSERT INTO history SET userId=$userId,bikeNum=$bikeNum,action='RETIRER',parameter=$newCode");
+				$result=$db->query("INSERT INTO history SET userId=$userId,bikeNum=$bikeNum,action='RETIRER',parameter=$newCode,standId='$standid'");
 			  }
 			else
 			 {
